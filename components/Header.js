@@ -1,20 +1,28 @@
 import {
   HeartIcon,
-  MenuAlt3Icon,
   PaperAirplaneIcon,
   PlusCircleIcon,
   SearchIcon,
   UserGroupIcon,
 } from "@heroicons/react/outline";
 import { HomeIcon } from "@heroicons/react/solid";
-import { signOut } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
+import { useRouter } from "next/router";
+import { useRecoilState } from "recoil";
+import { modalState } from "../atoms/modalAtoms";
 
 function Header() {
+  const router = useRouter();
+  const [open, setOpen] = useRecoilState(modalState);
+  const { data: session } = useSession();
+
   return (
-    <nav className='sticky top-0 z-50 bg-white shadow-md'>
+    <nav className='sticky top-0 z-50 w-full bg-white shadow-md'>
       <div className='flex items-center justify-between max-w-6xl mx-auto bg-white px-4 py-1'>
-        <div className='flex justify-center pr-4'>
+        <div
+          onClick={() => router.push("/")}
+          className='flex justify-center pr-4'>
           <div className='relative h-8 w-8 lg:hidden flex-shrink-0 cursor-pointer'>
             <Image
               src='/insta-icon.jpg'
@@ -49,27 +57,38 @@ function Header() {
         </div>
 
         <div className=' flex items-center space-x-4'>
-          <HomeIcon className='iconBtn' />
-          <MenuAlt3Icon className='h-6 md:hidden cursor-pointer' />
-          <div className='relative iconBtn'>
-            <PaperAirplaneIcon className='iconBtn rotate-45' />
-            <div className='absolute -top-2 -right-1 w-5 h-5 text-xs bg-red-500 animate-pulse flex items-center justify-center text-white rounded-full'>
-              3
-            </div>
-          </div>
-          <PlusCircleIcon className='iconBtn' />
-          <UserGroupIcon className='iconBtn' />
-          <HeartIcon className='iconBtn' />
-          <button
-            onClick={signOut}
-            className='relative w-10 h-10 cursor-pointer rounded-full'>
-            <Image
-              src='/me-copy.png'
-              objectFit='cover'
-              priority
-              layout='fill'
+          <HomeIcon onClick={() => router.push("/")} className='iconBtn' />
+          {session && (
+            <PlusCircleIcon
+              onClick={() => setOpen(true)}
+              className='md:hidden h-6 w-6 cursor-pointer'
             />
-          </button>
+          )}
+          {session ? (
+            <>
+              <div className='relative iconBtn'>
+                <PaperAirplaneIcon className='iconBtn rotate-45' />
+                <div className='absolute -top-2 -right-1 w-5 h-5 text-xs bg-red-500 animate-pulse flex items-center justify-center text-white rounded-full'>
+                  3
+                </div>
+              </div>
+              <PlusCircleIcon
+                onClick={() => setOpen(true)}
+                className='iconBtn'
+              />
+              <UserGroupIcon className='iconBtn' />
+              <HeartIcon className='iconBtn' />
+              <button onClick={signOut}>
+                <img
+                  src={session?.user?.image}
+                  alt='user image'
+                  className='relative w-10 h-10 cursor-pointer rounded-full'
+                />
+              </button>
+            </>
+          ) : (
+            <button onClick={signIn}>Sign In</button>
+          )}
         </div>
       </div>
     </nav>
