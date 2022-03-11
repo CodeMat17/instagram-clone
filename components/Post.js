@@ -129,7 +129,7 @@ function Post({ username, userImg, img, caption, id }) {
           {comments.map((comment) => (
             <div key={comment.id} className='flex items-center space-x-2 mb-3'>
               <img
-                src={comment.data().userImage}
+                src={comment.data().userImg}
                 alt='comment image'
                 className='h-7 w-7 rounded-full'
               />
